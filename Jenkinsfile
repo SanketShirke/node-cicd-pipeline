@@ -1,33 +1,32 @@
 pipeline {
-    agent any 
-    stages {
-        stage("Code Clone"){
-            steps{
-                git url: "https://github.com/SanketShirke/django-todo-app.git", branch: "main"
+    agent any
+    stages{
+        stage("Code Cloned") {
+            steps {
+                git url: "https://github.com/SanketShirke/node-cicd-pipeline.git" , branch: "main"
                 echo "Code Cloned"
             }
         }
-        stage("Code Build"){
-            steps{
-                sh "docker build . -t django-app"
+        stage("Code Build") {
+            steps {
+                sh "docker build . -t node-app"
                 echo "Code Build"
             }
         }
-        stage("Push to the docker Hub"){
+        stage("Image Pushed To Docker Repository") {
             steps {
-                withCredentials([usernamePassword(credentialsId:"dockerhub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubuser")]){
-                sh "docker login -u ${env.dockerHubuser} -p ${env.dockerHubPass}"
-                sh "docker tag django-app:latest ${env.dockerHubuser}/django-app:latest"
-                sh "docker push ${env.dockerHubuser}/django-app:latest"
+                withCredentials([usernamePassword(credentialsId:"dockerhub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
+                    sh "docker tag node-app ${env.dockerHubUser}/node-app:latest"
+                    sh "docker push ${env.dockerHubUser}/node-app:latest"
                 }
-                echo "Pushing the code on Docker hub"
+                echo "Image Pushed To Docker Repository"
             }
-
         }
-        stage("Deploy"){
-            steps{
-                echo "Code Deploy"
-                sh "docker compose down && docker compose up -d"
+        stage("Code has been deployed") {
+            steps {
+                sh "docker compose down &&  docker compose up -d"
+                echo "Code has been deployed"
             }
         }
     }
