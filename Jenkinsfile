@@ -1,32 +1,32 @@
-pipeline {
+pipeline{
     agent any
-    stages{
-        stage("Code Cloned") {
+    stages {
+        stage ("Code Cloned") {
             steps {
                 git url: "https://github.com/SanketShirke/node-cicd-pipeline.git" , branch: "main"
                 echo "Code Cloned"
             }
         }
-        stage("Code Build") {
+        stage ("Code Build") {
             steps {
-                sh "docker build . -t node-app"
-                echo "Code Build"
+                sh "docker build . -t node-app-test"
+                echo "Code build through docker"
             }
         }
-        stage("Image Pushed To Docker Repository") {
+        stage ("Push the Image to Docker Hub Repository") {
             steps {
                 withCredentials([usernamePassword(credentialsId:"dockerhub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                    sh "docker tag node-app ${env.dockerHubUser}/node-app:latest"
-                    sh "docker push ${env.dockerHubUser}/node-app:latest"
+                    sh "docker tag node-app-test ${env.dockerHubUser}/node-app-test:latest"
+                    sh "docker push ${env.dockerHubUser}/node-app-test:latest"
                 }
-                echo "Image Pushed To Docker Repository"
+                echo "Pushed Image to Docker Hub Repository"
             }
         }
-        stage("Code has been deployed") {
+        stage ("Deploying the application Through Docker Compose") {
             steps {
-                sh "docker compose down &&  docker compose up -d"
-                echo "Code has been deployed"
+                sh "docker compose down && docker compose up -d"
+                echo "Deploying the application"
             }
         }
     }
